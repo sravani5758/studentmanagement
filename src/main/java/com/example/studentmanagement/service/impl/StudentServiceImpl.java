@@ -93,7 +93,7 @@ public class StudentServiceImpl implements StudentService {
                 .map(this::mapToResponse);
     }
 
-    // ✅ NEW METHOD: Manual GPA recalculation using GradeCalculator
+    // GPA recalculation using GradeCalculator
     public StudentResponse recalculateGPA(Long studentId) {
         Student student = studentRepository.findByIdAndNotDeleted(studentId)
                 .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + studentId));
@@ -103,13 +103,13 @@ public class StudentServiceImpl implements StudentService {
                 .filter(e -> e.getGrade() != null)
                 .collect(Collectors.toList());
 
-        // ✅ USE GradeCalculator: Proper GPA calculation
+        // USE GradeCalculator Proper GPA calculation
         double gpa = gradeCalculator.calculateGPA(enrollments);
         student.setGpa(gpa);
 
         Student updatedStudent = studentRepository.save(student);
 
-        System.out.println("✅ Manually recalculated GPA for student " + studentId + ": " + gpa);
+        System.out.println("Manually recalculated GPA for student " + studentId + ": " + gpa);
 
         return mapToResponse(updatedStudent);
     }

@@ -50,7 +50,7 @@ public class CourseServiceImpl implements CourseService {
                 .deleted(false)
                 .build();
 
-        // 🔥 Update both sides of the relationship
+        // Update both sides of the relationship
         instructor.getCourses().add(course);
 
         courseRepository.save(course);

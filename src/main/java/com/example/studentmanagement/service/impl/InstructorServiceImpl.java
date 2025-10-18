@@ -110,7 +110,7 @@ public class InstructorServiceImpl implements InstructorService {
         response.setSpecialization(instructor.getSpecialization());
         response.setDepartment(instructor.getDepartment());
 
-        // ✅ Map courses (if any)
+        // Map courses (if any)
         if (instructor.getCourses() != null && !instructor.getCourses().isEmpty()) {
             List<InstructorResponse.CourseSummary> courseSummaries = instructor.getCourses().stream()
                     .map(course -> new InstructorResponse.CourseSummary(

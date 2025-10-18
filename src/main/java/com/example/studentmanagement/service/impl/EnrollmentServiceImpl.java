@@ -138,13 +138,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .filter(s -> "GRADED".equals(s.getStatus()) && s.getMarksObtained() != null) // ← ONLY GRADED!
                 .collect(Collectors.toList());
 
-        System.out.println("🔍 calculateFinalGrade - Found " + gradedSubmissions.size() + " graded submissions");
+        System.out.println("calculateFinalGrade - Found " + gradedSubmissions.size() + " graded submissions");
 
         if (gradedSubmissions.isEmpty()) {
             throw new RuntimeException("No graded submissions found to calculate final grade");
         }
 
-        // ✅ FIX: Calculate with proper weights for GRADED submissions only
+        //  FIX: Calculate with proper weights for GRADED submissions only
         double assignmentWeight = 100.0 / gradedSubmissions.size();
         String finalGrade = gradeCalculator.calculateCourseGrade(gradedSubmissions, assignmentWeight);
 
@@ -159,13 +159,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
 
-        System.out.println("✅ Calculated final grade: " + finalGrade + " with marks: " + averageMarks);
+        System.out.println(" Calculated final grade: " + finalGrade + " with marks: " + averageMarks);
 
         return mapToResponse(updatedEnrollment);
     }
 
     private void updateStudentGPA(Long studentId) {
-        // ✅ USE GradeCalculator: Proper GPA calculation from course grades
+        //  USE GradeCalculator: Proper GPA calculation from course grades
         List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId)
                 .stream()
                 .filter(e -> e.getGrade() != null)
@@ -178,7 +178,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         student.setGpa(gpa);
         studentRepository.save(student);
 
-        System.out.println("✅ Updated GPA for student " + studentId + ": " + gpa);
+        System.out.println(" Updated GPA for student " + studentId + ": " + gpa);
     }
 
     private EnrollmentResponse mapToResponse(Enrollment enrollment) {

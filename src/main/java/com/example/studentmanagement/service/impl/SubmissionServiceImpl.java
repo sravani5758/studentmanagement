@@ -97,7 +97,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         Submission gradedSubmission = submissionRepository.save(submission);
 
-        // ✅ AUTO-UPDATE: This automatically updates enrollment grade!
+        //  This automatically updates enrollment grade!
         updateEnrollmentGrade(submission.getStudent().getId(), submission.getAssignment().getCourse().getId());
 
         // Update student GPA
@@ -141,10 +141,10 @@ public class SubmissionServiceImpl implements SubmissionService {
                     .filter(s -> "GRADED".equals(s.getStatus()) && s.getMarksObtained() != null)
                     .collect(Collectors.toList());
 
-            System.out.println("📊 Found " + gradedSubmissions.size() + " graded submissions for enrollment update");
+            System.out.println(" Found " + gradedSubmissions.size() + " graded submissions for enrollment update");
 
             if (!gradedSubmissions.isEmpty()) {
-                // ✅ USE GradeCalculator: Calculate course grade with weights
+                // USE GradeCalculator: Calculate course grade with weights
                 double assignmentWeight = 100.0 / gradedSubmissions.size(); // Equal weight for all assignments
                 String courseGrade = gradeCalculator.calculateCourseGrade(gradedSubmissions, assignmentWeight);
 
@@ -158,19 +158,19 @@ public class SubmissionServiceImpl implements SubmissionService {
                 enrollment.setFinalMarks(Math.round(averageMarks * 100.0) / 100.0);
                 enrollmentRepository.save(enrollment);
 
-                System.out.println("✅ Updated enrollment: Student " + studentId + ", Course " + courseId +
+                System.out.println("Updated enrollment: Student " + studentId + ", Course " + courseId +
                         ", Grade: " + courseGrade + ", Marks: " + averageMarks);
             } else {
-                System.out.println("❌ No graded submissions found for enrollment update");
+                System.out.println("No graded submissions found for enrollment update");
             }
         } catch (Exception e) {
-            System.err.println("❌ Error updating enrollment grade: " + e.getMessage());
+            System.err.println("Error updating enrollment grade: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void updateStudentGPA(Long studentId) {
-        // ✅ USE GradeCalculator: Get enrollments with grades for proper GPA calculation
+        //  USE GradeCalculator: Get enrollments with grades for proper GPA calculation
         List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId)
                 .stream()
                 .filter(e -> e.getGrade() != null)
@@ -183,7 +183,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         student.setGpa(gpa);
         studentRepository.save(student);
 
-        System.out.println("✅ Updated GPA for student " + studentId + ": " + gpa);
+        System.out.println("Updated GPA for student " + studentId + ": " + gpa);
     }
 
     private SubmissionResponse mapToResponse(Submission submission) {
