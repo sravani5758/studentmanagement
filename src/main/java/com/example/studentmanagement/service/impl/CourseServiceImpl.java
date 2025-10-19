@@ -6,6 +6,7 @@ import com.example.studentmanagement.entity.Assignment;
 import com.example.studentmanagement.entity.Course;
 import com.example.studentmanagement.entity.Instructor;
 import com.example.studentmanagement.exceptions.DuplicateResourceException;
+import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.AssignmentRepository;
 import com.example.studentmanagement.repository.CourseRepository;
 import com.example.studentmanagement.repository.InstructorRepository;
@@ -60,6 +61,12 @@ public class CourseServiceImpl implements CourseService {
         return mapToResponse(course);
     }
 
+    @Override
+    public Page<CourseResponse> searchCourseByName(String name, Pageable pageable){
+        return courseRepository.findByNameContainingAndDeletedFalse(name,pageable)
+                .map(this::mapToResponse);
+    }
+
 
     @Override
     public Page<CourseResponse> getAllCourses(Pageable pageable) {
@@ -69,14 +76,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse getCourseById(Long id) {
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
+        Course course = courseRepository.findByIdAndNotDeleted(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
         return mapToResponse(course);
     }
 
     @Override
     public CourseResponse updateCourse(Long id, CourseRequest request) {
-        Course course = courseRepository.findById(id)
+        Course course = courseRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
 
 
@@ -91,14 +98,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourse(Long id) {
-        Course course = courseRepository.findById(id)
+        Course course = courseRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
         courseRepository.delete(course);
     }
 
     @Override
     public CourseResponse softDeleteCourse(Long id) {
-        Course course = courseRepository.findById(id)
+        Course course = courseRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
         course.setDeleted(true);
         Course updatedCourse = courseRepository.save(course);

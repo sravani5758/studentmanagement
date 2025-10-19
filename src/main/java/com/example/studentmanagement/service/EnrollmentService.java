@@ -15,4 +15,7 @@ public interface EnrollmentService {
     List<EnrollmentResponse> getEnrollmentsByCourse(Long courseId);
     EnrollmentResponse updateGrade(Long enrollmentId, String grade, Double marks);
     EnrollmentResponse calculateFinalGrade(Long enrollmentId);
+
+    EnrollmentResponse getByStudentAndCourseId(Long studentId, Long courseId);
+
 }

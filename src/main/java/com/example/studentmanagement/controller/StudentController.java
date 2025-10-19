@@ -66,7 +66,7 @@ public class StudentController {
         return ResponseEntity.ok(studentService.searchStudentsByName(name, pageable));
     }
 
-    // ✅ NEW ENDPOINT: Manual GPA recalculation using GradeCalculator
+    // NEW ENDPOINT: Manual GPA recalculation using GradeCalculator
     @PostMapping("/{studentId}/recalculate-gpa")
     public ResponseEntity<StudentResponse> recalculateGPA(@PathVariable Long studentId) {
         return ResponseEntity.ok(studentService.recalculateGPA(studentId));

@@ -3,6 +3,8 @@ package com.example.studentmanagement.service.impl;
 import com.example.studentmanagement.dto.request.EnrollmentRequest;
 import com.example.studentmanagement.dto.response.EnrollmentResponse;
 import com.example.studentmanagement.entity.*;
+import com.example.studentmanagement.exceptions.DuplicateResourceException;
+import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.EnrollmentRepository;
 import com.example.studentmanagement.repository.StudentRepository;
 import com.example.studentmanagement.repository.CourseRepository;
@@ -32,21 +34,21 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public EnrollmentResponse enrollStudent(EnrollmentRequest request) {
         Student student = studentRepository.findByIdAndNotDeleted(request.getStudentId())
-                .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + request.getStudentId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + request.getStudentId()));
 
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + request.getCourseId()));
+        Course course = courseRepository.findByIdAndNotDeleted(request.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + request.getCourseId()));
 
-        if (course.getDeleted() || !"ACTIVE".equals(course.getStatus())) {
+        if (!"ACTIVE".equals(course.getStatus())) {
             throw new RuntimeException("Course is not available for enrollment");
         }
 
         if (enrollmentRepository.findByStudentIdAndCourseId(student.getId(), course.getId()).isPresent()) {
-            throw new RuntimeException("Student is already enrolled in this course");
+            throw new DuplicateResourceException("Student is already enrolled in this course");
         }
 
         Integer currentEnrollments = enrollmentRepository.countByCourseId(course.getId());
-        System.out.println("📊 Course: " + course.getTitle() + ", Seat Limit: " + course.getSeatLimit() + ", Current Enrollments: " + currentEnrollments);
+        System.out.println(" Course: " + course.getTitle() + ", Seat Limit: " + course.getSeatLimit() + ", Current Enrollments: " + currentEnrollments);
 
         if (currentEnrollments >= course.getSeatLimit()) {
             throw new RuntimeException("Course is full. No seats available. Current: " + currentEnrollments + "/" + course.getSeatLimit());
@@ -65,27 +67,27 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
 
         Integer updatedCount = enrollmentRepository.countByCourseId(course.getId());
-        System.out.println("✅ Enrollment successful! Updated count: " + updatedCount + "/" + course.getSeatLimit());
+        System.out.println("Enrollment successful! Updated count: " + updatedCount + "/" + course.getSeatLimit());
 
         return mapToResponse(savedEnrollment);
     }
 
     @Override
     public Page<EnrollmentResponse> getAllEnrollments(Pageable pageable) {
-        return enrollmentRepository.findAll(pageable)
+        return enrollmentRepository.findAllByNotDeleted(pageable)
                 .map(this::mapToResponse);
     }
 
     @Override
     public EnrollmentResponse getEnrollmentById(Long id) {
-        Enrollment enrollment = enrollmentRepository.findById(id)
+        Enrollment enrollment = enrollmentRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Enrollment not found with id: " + id));
         return mapToResponse(enrollment);
     }
 
     @Override
     public void deleteEnrollment(Long id) {
-        Enrollment enrollment = enrollmentRepository.findById(id)
+        Enrollment enrollment = enrollmentRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Enrollment not found with id: " + id));
         enrollment.setDeleted(true);
         enrollmentRepository.save(enrollment);
@@ -93,7 +95,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public List<EnrollmentResponse> getEnrollmentsByStudent(Long studentId) {
-        return enrollmentRepository.findByStudentId(studentId)
+        return enrollmentRepository.findByStudentIdAndNotDeleted(studentId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -101,7 +103,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public List<EnrollmentResponse> getEnrollmentsByCourse(Long courseId) {
-        return enrollmentRepository.findByCourseId(courseId)
+        return enrollmentRepository.findByCourseIdAndNotDeleted(courseId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -124,6 +126,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         updateStudentGPA(enrollment.getStudent().getId());
 
         return mapToResponse(updatedEnrollment);
+
+
+
+    }
+    @Override
+    public EnrollmentResponse getByStudentAndCourseId(Long studentId, Long courseId){
+        Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseIdAndDeletedFalse(studentId,courseId)
+                .orElseThrow(()-> new ResourceNotFoundException("No enrollment found"));
+        return mapToResponse(enrollment);
     }
 
     //  Calculate final grade using GradeCalculator

@@ -9,6 +9,7 @@ import com.example.studentmanagement.repository.AssignmentRepository;
 import com.example.studentmanagement.repository.CourseRepository;
 import com.example.studentmanagement.service.AssignmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,8 +43,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<AssignmentResponse> getAllAssignments() {
-        return assignmentRepository.findAllActive()
+    public List<AssignmentResponse> getAllAssignments(Pageable pageable) {
+        return assignmentRepository.findAllActive(pageable)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

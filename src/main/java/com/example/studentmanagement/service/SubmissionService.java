@@ -2,6 +2,7 @@ package com.example.studentmanagement.service;
 
 import com.example.studentmanagement.dto.request.GradeRequest;
 import com.example.studentmanagement.dto.request.SubmissionRequest;
+import com.example.studentmanagement.dto.response.EnrollmentResponse;
 import com.example.studentmanagement.dto.response.SubmissionResponse;
 import com.example.studentmanagement.security.UserPrincipal;
 
@@ -15,4 +16,6 @@ public interface SubmissionService {
     List<SubmissionResponse> getSubmissionsByStudent(Long studentId);
     List<SubmissionResponse> getSubmissionsByAssignment(Long assignmentId);
     List<SubmissionResponse> getSubmissionsByCourse(Long courseId);
+
+    List<SubmissionResponse> getSubmissionBystatus(String status);
 }

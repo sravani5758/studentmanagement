@@ -1,6 +1,7 @@
 package com.example.studentmanagement.repository;
 
 import com.example.studentmanagement.entity.Course;
+import com.example.studentmanagement.entity.Student;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +30,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Optional<Course> findTopByOrderByIdDesc();
 
     boolean existsByTitle(String title);
+
+    @Query("SELECT c FROM Course c WHERE c.id = :id AND c.deleted = false")
+    Optional<Course> findByIdAndNotDeleted(Long id);
+
+
+    @Query("SELECT c FROM Course c WHERE c.title LIKE %:name% AND c.deleted = false")
+    Page<Course> findByNameContainingAndDeletedFalse(String name, Pageable pageable);
+
 }

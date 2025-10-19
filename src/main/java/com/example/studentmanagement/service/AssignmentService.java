@@ -2,12 +2,13 @@ package com.example.studentmanagement.service;
 
 import com.example.studentmanagement.dto.request.AssignmentRequest;
 import com.example.studentmanagement.dto.response.AssignmentResponse;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface AssignmentService {
     AssignmentResponse createAssignment(AssignmentRequest request);
-    List<AssignmentResponse> getAllAssignments();
+    List<AssignmentResponse> getAllAssignments(Pageable pageable);
     AssignmentResponse getAssignmentById(Long id);
     AssignmentResponse updateAssignment(Long id, AssignmentRequest request);
     void deleteAssignment(Long id);

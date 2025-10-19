@@ -2,6 +2,7 @@ package com.example.studentmanagement.service.impl;
 
 import com.example.studentmanagement.dto.request.GradeRequest;
 import com.example.studentmanagement.dto.request.SubmissionRequest;
+import com.example.studentmanagement.dto.response.EnrollmentResponse;
 import com.example.studentmanagement.dto.response.SubmissionResponse;
 import com.example.studentmanagement.entity.*;
 import com.example.studentmanagement.exceptions.InvalidOperationException;
@@ -111,6 +112,15 @@ public class SubmissionServiceImpl implements SubmissionService {
         return submissionRepository.findByStudentId(studentId)
                 .stream()
                 .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SubmissionResponse> getSubmissionBystatus(String status) {
+        return submissionRepository.findByStatus(status)
+                .orElseThrow(() -> new ResourceNotFoundException("No submissions found with status: " + status))
+                .stream()
+                .map(this::mapToResponse) // Now this works correctly
                 .collect(Collectors.toList());
     }
 

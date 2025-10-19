@@ -2,6 +2,7 @@ package com.example.studentmanagement.controller;
 
 import com.example.studentmanagement.dto.request.GradeRequest;
 import com.example.studentmanagement.dto.request.SubmissionRequest;
+import com.example.studentmanagement.dto.response.EnrollmentResponse;
 import com.example.studentmanagement.dto.response.SubmissionResponse;
 import com.example.studentmanagement.security.UserPrincipal;
 import com.example.studentmanagement.service.SubmissionService;
@@ -60,5 +61,12 @@ public class SubmissionController {
     public ResponseEntity<List<SubmissionResponse>> getSubmissionsByCourse(
             @PathVariable Long courseId) {
         return ResponseEntity.ok(submissionService.getSubmissionsByCourse(courseId));
+
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<SubmissionResponse>> getSubmissionsByStatus(
+            @PathVariable String status) {
+        return ResponseEntity.ok(submissionService.getSubmissionBystatus(status));
     }
 }

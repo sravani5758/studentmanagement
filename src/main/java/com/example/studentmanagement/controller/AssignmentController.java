@@ -5,6 +5,9 @@ import com.example.studentmanagement.dto.request.AssignmentRequest;
 import com.example.studentmanagement.dto.response.AssignmentResponse;
 import com.example.studentmanagement.service.AssignmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +26,13 @@ public class AssignmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AssignmentResponse>> getAllAssignments() {
-        return ResponseEntity.ok(assignmentService.getAllAssignments());
+    public ResponseEntity<List<AssignmentResponse>> getAllAssignments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "course") String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return ResponseEntity.ok(assignmentService.getAllAssignments(pageable));
     }
 
     @GetMapping("/{id}")

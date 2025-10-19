@@ -96,7 +96,7 @@ public class SecurityConfig {
 
 
                         .requestMatchers(HttpMethod.GET, "/api/submissions").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/submissions").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/submissions").hasAnyRole("STUDENT","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/submissions/{submissionId}/grade").hasAnyRole("INSTRUCTOR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/submissions/{id}").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/submissions/student/{studentId}").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
@@ -105,7 +105,7 @@ public class SecurityConfig {
 
 
                         .requestMatchers(HttpMethod.GET, "/api/enrollments").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.POST, "/api/enrollments").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/enrollments").hasAnyRole("STUDENT","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/enrollments/{enrollmentId}/calculate-final-grade").hasAnyRole("INSTRUCTOR", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/enrollments/{enrollmentId}/grade").hasAnyRole("INSTRUCTOR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/enrollments/{id}").authenticated()

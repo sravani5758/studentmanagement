@@ -71,7 +71,19 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getActiveCourses());
     }
 
-    // ✅ NEW ENDPOINT: Check course seat availability
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<CourseResponse>> searchCourses(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(courseService.searchCourseByName(name, pageable));
+    }
+
+
+    // NEW ENDPOINT: Check course seat availability
     @GetMapping("/{courseId}/availability")
     public ResponseEntity<Map<String, Object>> checkCourseAvailability(@PathVariable Long courseId) {
         try {

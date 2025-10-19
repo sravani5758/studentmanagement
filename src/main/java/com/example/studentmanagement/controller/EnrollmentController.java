@@ -66,9 +66,17 @@ public class EnrollmentController {
         return ResponseEntity.ok(enrollmentService.updateGrade(enrollmentId, grade, marks));
     }
 
-    // ✅ NEW ENDPOINT: Calculate final grade using GradeCalculator
+    //  NEW ENDPOINT: Calculate final grade using GradeCalculator
     @PostMapping("/{enrollmentId}/calculate-final-grade")
     public ResponseEntity<EnrollmentResponse> calculateFinalGrade(@PathVariable Long enrollmentId) {
         return ResponseEntity.ok(enrollmentService.calculateFinalGrade(enrollmentId));
     }
+
+    @GetMapping("/{studentId}/{courseId}")
+    public EnrollmentResponse getByStudentAndCourseId(@PathVariable Long studentId,@PathVariable Long courseId){
+        return enrollmentService.getByStudentAndCourseId(studentId,courseId);
+    }
+
+
+
 }

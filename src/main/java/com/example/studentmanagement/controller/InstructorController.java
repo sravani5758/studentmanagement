@@ -2,6 +2,7 @@ package com.example.studentmanagement.controller;
 
 import com.example.studentmanagement.dto.request.InstructorRequest;
 import com.example.studentmanagement.dto.response.InstructorResponse;
+import com.example.studentmanagement.dto.response.StudentResponse;
 import com.example.studentmanagement.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,4 +59,16 @@ public class InstructorController {
             @PathVariable String department) {
         return ResponseEntity.ok(instructorService.getInstructorsByDepartment(department));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<InstructorResponse>> searchInstructor(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(instructorService.searchInstructorByName(name, pageable));
+    }
+
+
 }

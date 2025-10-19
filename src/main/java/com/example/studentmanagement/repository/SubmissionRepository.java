@@ -1,6 +1,8 @@
 package com.example.studentmanagement.repository;
 
 
+import com.example.studentmanagement.dto.response.EnrollmentResponse;
+import com.example.studentmanagement.dto.response.SubmissionResponse;
 import com.example.studentmanagement.entity.Submission;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +22,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     List<Submission> findByCourseId(Long courseId);
 
     Optional<Submission> findByStudentIdAndAssignmentId(Long studentId, Long assignmentId);
+
+    Optional<List<Submission>> findByStatus(String status);
 }

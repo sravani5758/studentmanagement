@@ -15,4 +15,6 @@ public interface CourseService {
     CourseResponse softDeleteCourse(Long id);
     List<CourseResponse> getCoursesByInstructor(Long instructorId);
     List<CourseResponse> getActiveCourses();
+
+    Page<CourseResponse> searchCourseByName(String name, Pageable pageable);
 }

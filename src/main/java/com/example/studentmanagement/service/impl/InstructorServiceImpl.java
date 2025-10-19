@@ -2,6 +2,7 @@ package com.example.studentmanagement.service.impl;
 
 import com.example.studentmanagement.dto.request.InstructorRequest;
 import com.example.studentmanagement.dto.response.InstructorResponse;
+import com.example.studentmanagement.dto.response.StudentResponse;
 import com.example.studentmanagement.entity.Course;
 import com.example.studentmanagement.entity.Instructor;
 import com.example.studentmanagement.repository.CourseRepository;
@@ -49,6 +50,12 @@ public class InstructorServiceImpl implements InstructorService {
         return mapToResponse(savedInstructor);
     }
 
+    @Override
+    public Page<InstructorResponse> searchInstructorByName(String name, Pageable pageable) {
+        return instructorRepository.findByNameContainingAndDeletedFalse(name, pageable)
+                .map(this::mapToResponse);
+    }
+
 
 
     @Override
@@ -60,14 +67,14 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public InstructorResponse getInstructorById(Long id) {
-        Instructor instructor = instructorRepository.findById(id)
+        Instructor instructor = instructorRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Instructor not found with id: " + id));
         return mapToResponse(instructor);
     }
 
     @Override
     public InstructorResponse updateInstructor(Long id, InstructorRequest request) {
-        Instructor instructor = instructorRepository.findById(id)
+        Instructor instructor = instructorRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Instructor not found with id: " + id));
 
         instructor.setName(request.getName());
@@ -81,7 +88,7 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public void deleteInstructor(Long id) {
-        Instructor instructor = instructorRepository.findById(id)
+        Instructor instructor = instructorRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new NoSuchElementException("Instructor not found with id: " + id));
         instructor.setDeleted(true);
         instructorRepository.save(instructor);

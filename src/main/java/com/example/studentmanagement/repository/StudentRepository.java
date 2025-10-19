@@ -12,26 +12,26 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-    // FIX: Only find non-deleted students
+    //  Only find non-deleted students
     @Query("SELECT s FROM Student s WHERE s.studentId = :studentId AND s.deleted = false")
     Optional<Student> findByStudentId(String studentId);
 
     @Query("SELECT s FROM Student s WHERE s.email = :email AND s.deleted = false")
     Optional<Student> findByEmail(String email);
 
-    // FIX: Check if email exists in non-deleted students only
+    //  Check if email exists in non-deleted students only
     @Query("SELECT COUNT(s) > 0 FROM Student s WHERE s.email = :email AND s.deleted = false")
     boolean existsByEmail(String email);
 
-    // FIX: Get only non-deleted students
+    //  Get only non-deleted students
     @Query("SELECT s FROM Student s WHERE s.deleted = false")
     Page<Student> findAllActive(Pageable pageable);
 
-    // FIX: Search only non-deleted students
+    //  Search only non-deleted students
     @Query("SELECT s FROM Student s WHERE s.name LIKE %:name% AND s.deleted = false")
     Page<Student> findByNameContainingAndDeletedFalse(String name, Pageable pageable);
 
-    // FIX: Get latest non-deleted student for ID generation
+    //  Get latest non-deleted student for ID generation
     @Query("SELECT s FROM Student s WHERE s.deleted = false ORDER BY s.id DESC")
     Optional<Student> findTopByOrderByIdDesc();
 

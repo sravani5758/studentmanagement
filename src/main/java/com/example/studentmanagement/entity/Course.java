@@ -36,7 +36,7 @@ public class Course {
     @Builder.Default
     private Boolean deleted = false;
 
-    // ✅ Many Courses belong to one Instructor
+    //  Many Courses belong to one Instructor
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructor_id")
     @JsonBackReference
