@@ -2,6 +2,7 @@ package com.example.studentmanagement.service;
 
 import com.example.studentmanagement.dto.request.CourseRequest;
 import com.example.studentmanagement.dto.response.CourseResponse;
+import com.example.studentmanagement.entity.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
@@ -17,4 +18,6 @@ public interface CourseService {
     List<CourseResponse> getActiveCourses();
 
     Page<CourseResponse> searchCourseByName(String name, Pageable pageable);
+
+    //List<Course> getAvailableCourses();
 }

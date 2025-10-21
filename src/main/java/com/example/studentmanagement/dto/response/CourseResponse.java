@@ -11,7 +11,7 @@ public class CourseResponse {
     private String courseCode;
     private String title;
     private String description;
-    private Integer seatLimit;     // Fixed limit only
+    private Integer seatLimit;
     private String status;
     private Long instructorId;
     private String instructorName;

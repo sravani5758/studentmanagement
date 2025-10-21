@@ -84,13 +84,13 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse updateCourse(Long id, CourseRequest request) {
         Course course = courseRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
 
 
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
         course.setSeatLimit(request.getSeatLimit());
-        course.setStatus(request.getStatus()); // Now accepts String
+        course.setStatus(request.getStatus());
 
         Course updatedCourse = courseRepository.save(course);
         return mapToResponse(updatedCourse);
@@ -99,14 +99,14 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourse(Long id) {
         Course course = courseRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
         courseRepository.delete(course);
     }
 
     @Override
     public CourseResponse softDeleteCourse(Long id) {
         Course course = courseRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
         course.setDeleted(true);
         Course updatedCourse = courseRepository.save(course);
 

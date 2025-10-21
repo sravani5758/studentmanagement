@@ -21,9 +21,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findAllActiveCourses(Pageable pageable);
 
     // FIX: Get only non-deleted courses (for list)
-    @Query("SELECT c FROM Course c WHERE c.deleted = false")
+    @Query("SELECT c FROM Course c WHERE c.deleted = false AND c.status='ACTIVE'")
     List<Course> findAllActiveCourses();
-
     @Query("SELECT c FROM Course c WHERE c.instructor.id = :instructorId AND c.deleted = false")
     List<Course> findByInstructorId(Long instructorId);
 

@@ -3,8 +3,11 @@ package com.example.studentmanagement.service.impl;
 import com.example.studentmanagement.dto.request.StudentRequest;
 import com.example.studentmanagement.dto.response.StudentResponse;
 import com.example.studentmanagement.entity.Student;
+import com.example.studentmanagement.exceptions.DuplicateResourceException;
+import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.StudentRepository;
 import com.example.studentmanagement.repository.EnrollmentRepository;
+import com.example.studentmanagement.service.EmailService;
 import com.example.studentmanagement.service.StudentService;
 import com.example.studentmanagement.util.GradeCalculator;
 import com.example.studentmanagement.util.IdGenerator;
@@ -27,11 +30,12 @@ public class StudentServiceImpl implements StudentService {
     private final IdGenerator idGenerator;
     private final PasswordEncoder passwordEncoder;
     private final GradeCalculator gradeCalculator;
+    private final EmailService emailService;
 
     @Override
     public StudentResponse createStudent(StudentRequest request) {
         if (studentRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
+            throw new DuplicateResourceException("Email already exists: " + request.getEmail());
         }
 
         String studentId = idGenerator.generateStudentId();
@@ -48,7 +52,16 @@ public class StudentServiceImpl implements StudentService {
                 .build();
 
         Student savedStudent = studentRepository.save(student);
+
+
+        emailService.sendEmail(
+                request.getEmail(),
+                "Welcome to Our portal",
+                "Hi " + request.getName() + ",\n Thankyou for joining our Portal"+
+                        "\n Your student id is "+ studentId+"\n Please make sure to enroll into the courses."
+        );
         return mapToResponse(savedStudent);
+
     }
 
     @Override
@@ -60,14 +73,14 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentResponse getStudentById(Long id) {
         Student student = studentRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
         return mapToResponse(student);
     }
 
     @Override
     public StudentResponse updateStudent(Long id, StudentRequest request) {
         Student student = studentRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
         student.setName(request.getName());
         student.setEmail(request.getEmail());
@@ -75,13 +88,38 @@ public class StudentServiceImpl implements StudentService {
         student.setAddress(request.getAddress());
 
         Student updatedStudent = studentRepository.save(student);
+
+        String subject = "Your Student Profile Has Been Updated";
+        String message = String.format(
+                "Hi %s,\n\nYour student profile details have been successfully updated.\n\n" +
+                        "Here are your new details:\n" +
+                        "Name: %s\n" +
+                        "Email: %s\n" +
+                        "Phone: %s\n" +
+                        "Address: %s\n\n" +
+                        "If you didn’t request this change, please contact support immediately.\n\n" +
+                        "Best regards,\nOur Portal Team",
+                updatedStudent.getName(),
+                updatedStudent.getName(),
+                updatedStudent.getEmail(),
+                updatedStudent.getPhone(),
+                updatedStudent.getAddress()
+        );
+
+        // call your EmailService
+        emailService.sendEmail(updatedStudent.getEmail(), subject, message);
+
+
+
+
+
         return mapToResponse(updatedStudent);
     }
 
     @Override
     public void deleteStudent(Long id) {
         Student student = studentRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
         student.setDeleted(true);
         studentRepository.save(student);
@@ -116,7 +154,7 @@ public class StudentServiceImpl implements StudentService {
 
     public void softDeleteStudent(Long id) {
         Student student = studentRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
         student.setDeleted(true);
         Student updatedStudent = studentRepository.save(student);
     }

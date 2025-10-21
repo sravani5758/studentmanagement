@@ -3,6 +3,7 @@ package com.example.studentmanagement.controller;
 import com.example.studentmanagement.dto.request.CourseRequest;
 import com.example.studentmanagement.dto.response.CourseResponse;
 import com.example.studentmanagement.entity.Course;
+import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.CourseRepository;
 import com.example.studentmanagement.repository.EnrollmentRepository;
 import com.example.studentmanagement.service.CourseService;
@@ -14,10 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -83,12 +82,12 @@ public class CourseController {
     }
 
 
-    // NEW ENDPOINT: Check course seat availability
-    @GetMapping("/{courseId}/availability")
+    //  Check course seat availability
+    @GetMapping("/availability/{courseId}")
     public ResponseEntity<Map<String, Object>> checkCourseAvailability(@PathVariable Long courseId) {
         try {
-            Course course = courseRepository.findById(courseId)
-                    .orElseThrow(() -> new NoSuchElementException("Course not found"));
+            Course course = courseRepository.findByIdAndNotDeleted(courseId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
             Integer currentEnrollments = enrollmentRepository.countByCourseId(courseId);
             Integer availableSeats = course.getSeatLimit() - currentEnrollments;
@@ -109,5 +108,38 @@ public class CourseController {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/availability")
+    public ResponseEntity<List<Map<String, Object>>> getAllCoursesAvailability() {
+        try {
+            List<Course> allCourses = courseRepository.findAllActiveCourses();
+
+            List<Map<String, Object>> availabilityList = allCourses.stream()
+                    .map(course -> {
+                        Long courseId = course.getId();
+                        Integer currentEnrollments = enrollmentRepository.countByCourseId(courseId);
+                        Integer availableSeats = course.getSeatLimit() - currentEnrollments;
+                        boolean isAvailable = availableSeats > 0 && !course.getDeleted() && "ACTIVE".equals(course.getStatus());
+
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("courseId", courseId);
+                        response.put("courseTitle", course.getTitle());
+                        response.put("seatLimit", course.getSeatLimit());
+                        response.put("currentEnrollments", currentEnrollments);
+                        response.put("availableSeats", availableSeats);
+                        response.put("isAvailable", isAvailable);
+                        response.put("status", course.getStatus());
+                        response.put("deleted", course.getDeleted());
+
+                        return response;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(availabilityList);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(List.of(Map.of("error", e.getMessage())));
+        }
+    }
+
 
 }

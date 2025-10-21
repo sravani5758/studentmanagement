@@ -4,6 +4,7 @@ import com.example.studentmanagement.dto.request.EnrollmentRequest;
 import com.example.studentmanagement.dto.response.EnrollmentResponse;
 import com.example.studentmanagement.entity.*;
 import com.example.studentmanagement.exceptions.DuplicateResourceException;
+import com.example.studentmanagement.exceptions.InvalidOperationException;
 import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.EnrollmentRepository;
 import com.example.studentmanagement.repository.StudentRepository;
@@ -40,7 +41,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + request.getCourseId()));
 
         if (!"ACTIVE".equals(course.getStatus())) {
-            throw new RuntimeException("Course is not available for enrollment");
+            throw new InvalidOperationException("Course is not available for enrollment");
         }
 
         if (enrollmentRepository.findByStudentIdAndCourseId(student.getId(), course.getId()).isPresent()) {
@@ -51,7 +52,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         System.out.println(" Course: " + course.getTitle() + ", Seat Limit: " + course.getSeatLimit() + ", Current Enrollments: " + currentEnrollments);
 
         if (currentEnrollments >= course.getSeatLimit()) {
-            throw new RuntimeException("Course is full. No seats available. Current: " + currentEnrollments + "/" + course.getSeatLimit());
+            throw new InvalidOperationException("Course is full. No seats available. Current: " + currentEnrollments + "/" + course.getSeatLimit());
         }
 
         String enrollmentNumber = idGenerator.generateEnrollmentNumber();
@@ -81,14 +82,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public EnrollmentResponse getEnrollmentById(Long id) {
         Enrollment enrollment = enrollmentRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Enrollment not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + id));
         return mapToResponse(enrollment);
     }
 
     @Override
     public void deleteEnrollment(Long id) {
         Enrollment enrollment = enrollmentRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Enrollment not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + id));
         enrollment.setDeleted(true);
         enrollmentRepository.save(enrollment);
     }
@@ -112,7 +113,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public EnrollmentResponse updateGrade(Long enrollmentId, String grade, Double marks) {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new NoSuchElementException("Enrollment not found with id: " + enrollmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + enrollmentId));
 
         //  Validate grade format
         String calculatedGrade = gradeCalculator.convertMarksToGrade(marks);
@@ -139,8 +140,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     //  Calculate final grade using GradeCalculator
     public EnrollmentResponse calculateFinalGrade(Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new NoSuchElementException("Enrollment not found with id: " + enrollmentId));
+        Enrollment enrollment = enrollmentRepository.findByIdAndNotDeleted(enrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + enrollmentId));
 
         //  Only get GRADED submissions
         List<Submission> gradedSubmissions = submissionRepository.findByCourseId(enrollment.getCourse().getId())
@@ -152,7 +153,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         System.out.println("calculateFinalGrade - Found " + gradedSubmissions.size() + " graded submissions");
 
         if (gradedSubmissions.isEmpty()) {
-            throw new RuntimeException("No graded submissions found to calculate final grade");
+            throw new ResourceNotFoundException("No graded submissions found to calculate final grade");
         }
 
         //  FIX: Calculate with proper weights for GRADED submissions only
@@ -185,7 +186,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         double gpa = gradeCalculator.calculateGPA(enrollments);
 
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new NoSuchElementException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         student.setGpa(gpa);
         studentRepository.save(student);
 

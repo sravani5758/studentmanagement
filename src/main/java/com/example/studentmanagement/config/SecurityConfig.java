@@ -53,70 +53,47 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/error"
+                        ).permitAll()
 
+                        // Student endpoints - specific patterns
+                        .requestMatchers(HttpMethod.GET, "/api/students/**").hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/students/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/students/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/students/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/api/students/{id}").hasAnyRole("STUDENT", "ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/students/{id}").hasAnyRole("STUDENT", "ADMIN") // Students can update their own profile
-                        .requestMatchers(HttpMethod.DELETE, "/api/students/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/students").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.POST, "/api/students").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/students/{studentId}/recalculate-gpa").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.GET, "/api/students/search").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/students/{id}/soft-delete").hasRole("ADMIN")
+                        // Instructor endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/instructors/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.POST, "/api/instructors/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/instructors/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/instructors/**").hasRole("ADMIN")
 
+                        // Course endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/courses/**").permitAll() // or hasAnyRole(...)
+                        .requestMatchers(HttpMethod.POST, "/api/courses/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/courses/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/courses/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/api/instructors/{id}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/instructors/{id}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/instructors").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.POST, "/api/instructors").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/instructors/department/{department}").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/instructors/{id}/soft-delete").hasRole("ADMIN")
+                        // Assignment endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/assignments/**").hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/assignments/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/assignments/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/assignments/**").hasRole("ADMIN")
 
+                        // Submission endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/submissions/**").hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/submissions/**").hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/submissions/**").hasAnyRole("ADMIN", "INSTRUCTOR")
 
-                        .requestMatchers(HttpMethod.GET, "/api/courses/{id}").authenticated() // All authenticated users can view courses
-                        .requestMatchers(HttpMethod.PUT, "/api/courses/{id}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/courses").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/courses").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.GET, "/api/courses/{courseId}/availability").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/courses/instructor/{instructorId}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/courses/active").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/courses/{id}/soft-delete").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        // Enrollment endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/enrollments/**").hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/enrollments/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/enrollments/**").hasAnyRole("ADMIN", "INSTRUCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasRole("ADMIN")
 
-
-                        .requestMatchers(HttpMethod.GET, "/api/assignments/{id}").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/assignments/{id}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/assignments/{id}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/assignments").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/assignments").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/assignments/course/{courseId}").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/assignments/active").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/assignments/{id}/soft-delete").hasAnyRole("INSTRUCTOR", "ADMIN")
-
-
-                        .requestMatchers(HttpMethod.GET, "/api/submissions").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/submissions").hasAnyRole("STUDENT","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/submissions/{submissionId}/grade").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/submissions/{id}").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/submissions/student/{studentId}").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/submissions/course/{courseId}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/submissions/assignment/{assignmentId}").hasAnyRole("INSTRUCTOR", "ADMIN")
-
-
-                        .requestMatchers(HttpMethod.GET, "/api/enrollments").hasAnyRole("ADMIN", "INSTRUCTOR")
-                        .requestMatchers(HttpMethod.POST, "/api/enrollments").hasAnyRole("STUDENT","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/enrollments/{enrollmentId}/calculate-final-grade").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/enrollments/{enrollmentId}/grade").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/enrollments/{id}").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/enrollments/student/{studentId}").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/enrollments/course/{courseId}").hasAnyRole("INSTRUCTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/enrollments/{id}/soft-delete").hasAnyRole("ADMIN", "INSTRUCTOR")
-
-
-
-
-
+                        // Any other request
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

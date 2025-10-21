@@ -5,6 +5,8 @@ import com.example.studentmanagement.dto.response.InstructorResponse;
 import com.example.studentmanagement.dto.response.StudentResponse;
 import com.example.studentmanagement.entity.Course;
 import com.example.studentmanagement.entity.Instructor;
+import com.example.studentmanagement.exceptions.DuplicateResourceException;
+import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.CourseRepository;
 import com.example.studentmanagement.repository.InstructorRepository;
 import com.example.studentmanagement.service.InstructorService;
@@ -31,7 +33,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public InstructorResponse createInstructor(InstructorRequest request) {
         if (instructorRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
+            throw new DuplicateResourceException("Email already exists: " + request.getEmail());
         }
 
         String instructorId = idGenerator.generateInstructorId();
@@ -60,7 +62,6 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public Page<InstructorResponse> getAllInstructors(Pageable pageable) {
-        // Add this method to InstructorRepository first
         return instructorRepository.findAllActive(pageable)
                 .map(this::mapToResponse);
     }
@@ -68,14 +69,14 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public InstructorResponse getInstructorById(Long id) {
         Instructor instructor = instructorRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Instructor not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found with id: " + id));
         return mapToResponse(instructor);
     }
 
     @Override
     public InstructorResponse updateInstructor(Long id, InstructorRequest request) {
         Instructor instructor = instructorRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Instructor not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found with id: " + id));
 
         instructor.setName(request.getName());
         instructor.setEmail(request.getEmail());
@@ -89,7 +90,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public void deleteInstructor(Long id) {
         Instructor instructor = instructorRepository.findByIdAndNotDeleted(id)
-                .orElseThrow(() -> new NoSuchElementException("Instructor not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found with id: " + id));
         instructor.setDeleted(true);
         instructorRepository.save(instructor);
 
@@ -103,6 +104,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public List<InstructorResponse> getInstructorsByDepartment(String department) {
         return instructorRepository.findAll().stream()
+                .filter(instructor -> !instructor.getDeleted())
                 .filter(instructor -> department.equalsIgnoreCase(instructor.getDepartment()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

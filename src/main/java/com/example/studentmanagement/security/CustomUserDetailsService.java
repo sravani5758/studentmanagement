@@ -7,6 +7,8 @@ import com.example.studentmanagement.entity.Student;
 import com.example.studentmanagement.repository.AdminRepository;
 import com.example.studentmanagement.repository.InstructorRepository;
 import com.example.studentmanagement.repository.StudentRepository;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Data
+@Builder
+
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final StudentRepository studentRepository;

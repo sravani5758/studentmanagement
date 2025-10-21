@@ -29,11 +29,10 @@ public class Instructor {
     private String name;
 
     @Column(unique = true, nullable = false)
-    @Email(message = "Invaild email")
+
     private String email;
 
     @Column(nullable = false)
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
     private String password;
 
     private String specialization;
