@@ -7,6 +7,7 @@ import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.CourseRepository;
 import com.example.studentmanagement.repository.EnrollmentRepository;
 import com.example.studentmanagement.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,7 @@ public class CourseController {
     private final EnrollmentRepository enrollmentRepository;
 
     @PostMapping
-    public ResponseEntity<CourseResponse> createCourse(@RequestBody CourseRequest request) {
+    public ResponseEntity<CourseResponse> createCourse(@RequestBody @Valid CourseRequest request) {
         return ResponseEntity.ok(courseService.createCourse(request));
     }
 

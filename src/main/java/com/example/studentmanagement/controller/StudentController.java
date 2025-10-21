@@ -3,6 +3,7 @@ package com.example.studentmanagement.controller;
 import com.example.studentmanagement.dto.request.StudentRequest;
 import com.example.studentmanagement.dto.response.StudentResponse;
 import com.example.studentmanagement.service.StudentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +20,7 @@ public class StudentController {
     private final StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<StudentResponse> createStudent(@RequestBody StudentRequest request) {
+    public ResponseEntity<StudentResponse> createStudent(@RequestBody @Valid StudentRequest request) {
         return ResponseEntity.ok(studentService.createStudent(request));
     }
 

@@ -16,7 +16,7 @@ public class RegisterRequest {
     @NotBlank(message = "Email cannot be blank")
     private String email;
 
-    @NotBlank(message = "Password cannot be blank")
+    @NotNull(message = "Password cannot be blank")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
     private String role; // STUDENT, INSTRUCTOR, ADMIN

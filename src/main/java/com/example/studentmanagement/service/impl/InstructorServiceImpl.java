@@ -14,6 +14,8 @@ import com.example.studentmanagement.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -106,6 +108,15 @@ public class InstructorServiceImpl implements InstructorService {
         return instructorRepository.findAll().stream()
                 .filter(instructor -> !instructor.getDeleted())
                 .filter(instructor -> department.equalsIgnoreCase(instructor.getDepartment()))
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<InstructorResponse> getMyCourses(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        return instructorRepository.findByEmail(email).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

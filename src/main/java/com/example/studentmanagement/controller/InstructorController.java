@@ -4,12 +4,15 @@ import com.example.studentmanagement.dto.request.InstructorRequest;
 import com.example.studentmanagement.dto.response.InstructorResponse;
 import com.example.studentmanagement.dto.response.StudentResponse;
 import com.example.studentmanagement.service.InstructorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +25,7 @@ public class InstructorController {
     private final InstructorService instructorService;
 
     @PostMapping
-    public ResponseEntity<InstructorResponse> createInstructor(@RequestBody InstructorRequest request) {
+    public ResponseEntity<InstructorResponse> createInstructor(@RequestBody @Valid InstructorRequest request) {
         return ResponseEntity.ok(instructorService.createInstructor(request));
     }
 
@@ -68,6 +71,14 @@ public class InstructorController {
 
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(instructorService.searchInstructorByName(name, pageable));
+    }
+
+
+    @GetMapping("/my-courses")
+    public List<InstructorResponse> getMyCourses(Authentication authentication){
+        return instructorService.getMyCourses();
+
+
     }
 
 

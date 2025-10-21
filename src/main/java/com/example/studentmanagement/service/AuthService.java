@@ -9,4 +9,6 @@ import com.example.studentmanagement.dto.response.RegisterResponse;
 public interface AuthService {
     RegisterResponse register(RegisterRequest request);
     LoginResponse login(LoginRequest request);
+
+    void deleteUser(Long id);
 }

@@ -82,6 +82,9 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
+        if (studentRepository.existsByEmail(request.getEmail())){
+            throw new DuplicateResourceException("Email already exits");
+        }
         student.setName(request.getName());
         student.setEmail(request.getEmail());
         student.setPhone(request.getPhone());

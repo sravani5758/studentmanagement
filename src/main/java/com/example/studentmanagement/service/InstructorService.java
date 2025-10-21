@@ -16,4 +16,6 @@ public interface InstructorService {
     List<InstructorResponse> getInstructorsByDepartment(String department);
 
     Page<InstructorResponse> searchInstructorByName(String name, Pageable pageable);
+
+    List<InstructorResponse> getMyCourses();
 }

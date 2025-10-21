@@ -70,7 +70,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Page<CourseResponse> getAllCourses(Pageable pageable) {
-        return courseRepository.findAllActiveCourses(pageable)
+        return courseRepository.findByDeletedFalse(pageable)
                 .map(this::mapToResponse);
     }
 
@@ -108,12 +108,14 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findByIdAndNotDeleted(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
         course.setDeleted(true);
+        course.setStatus("CANCELLED");
         Course updatedCourse = courseRepository.save(course);
 
         List<Assignment> assignments = assignmentRepository.findByCourseId(id);
         for (Assignment assignment : assignments) {
             assignment.setDeleted(true);
         }
+
         assignmentRepository.saveAll(assignments);
         return mapToResponse(updatedCourse);
     }

@@ -54,9 +54,12 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
                         .requestMatchers(
-                                "/api/auth/**",
+                                "/api/auth/login",
+                                "/api/auth/register",
                                 "/error"
                         ).permitAll()
+
+                        .requestMatchers("/api/auth/delete").hasRole("ADMIN")
 
                         // Student endpoints - specific patterns
                         .requestMatchers(HttpMethod.GET, "/api/students/**").hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")

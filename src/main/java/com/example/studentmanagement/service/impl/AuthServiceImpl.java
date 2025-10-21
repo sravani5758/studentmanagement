@@ -8,6 +8,7 @@ import com.example.studentmanagement.dto.response.RegisterResponse;
 import com.example.studentmanagement.entity.Admin;
 import com.example.studentmanagement.entity.Instructor;
 import com.example.studentmanagement.entity.Student;
+import com.example.studentmanagement.exceptions.ResourceNotFoundException;
 import com.example.studentmanagement.repository.AdminRepository;
 import com.example.studentmanagement.repository.InstructorRepository;
 import com.example.studentmanagement.repository.StudentRepository;
@@ -116,4 +117,12 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponse(jwt, userPrincipal.getId(), userPrincipal.getEmail(),
                 userPrincipal.getName(), userPrincipal.getRole());
     }
+
+
+    public void deleteUser(Long id){
+        Admin user = adminRepository.findById(id)
+                        .orElseThrow(()-> new ResourceNotFoundException("Not found"));
+        adminRepository.delete(user);
+    }
+
 }
